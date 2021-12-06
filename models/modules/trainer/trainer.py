@@ -5,6 +5,7 @@ from modules.utils.converter import keys
 from modules.base.base_trainer import BaseTrainer
 from modules.utils.converter import StringLabelConverter
 
+import wandb
 
 class Trainer(BaseTrainer):
     """
@@ -15,8 +16,8 @@ class Trainer(BaseTrainer):
         self.optimizer is by default handled by BaseTrainer based on config.
     """
 
-    def __init__(self, model, loss, metrics, resume, config, data_loader, valid_data_loader=None, train_logger=None):
-        super(Trainer, self).__init__(model, loss, metrics, resume, config, train_logger)
+    def __init__(self, model, loss, metrics, resume, config, save_folder, data_loader, valid_data_loader=None, train_logger=None, wandb_logger=False):
+        super(Trainer, self).__init__(model, loss, metrics, resume, config, save_folder, train_logger)
         self.config = config
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader
@@ -25,6 +26,7 @@ class Trainer(BaseTrainer):
         self.log_step = config['trainer']['print_step']
         self.skip_val_lt_epoch = config['validation']['skip_lt_epoch']
         self.label_converter = StringLabelConverter(keys)
+        self.wandb_logger = wandb_logger
 
     def _to_tensor(self, *tensors):
         t = []
@@ -59,6 +61,7 @@ class Trainer(BaseTrainer):
         for batch_idx, gt in enumerate(self.data_loader):
             try:
                 image_paths, img, score_map, geo_map, training_mask, transcripts, boxes, mapping = gt
+                
                 img, score_map, geo_map, training_mask = self._to_tensor(img, score_map, geo_map, training_mask)
 
                 self.optimizer.zero_grad()
@@ -87,7 +90,7 @@ class Trainer(BaseTrainer):
                     pred_transcripts = self.label_converter.decode(pred.data, preds_size.data, raw=False)
                     pred_transcripts = [pred_transcripts] if isinstance(pred_transcripts, str) else pred_transcripts
                 pred_transcripts = np.array(pred_transcripts)
-
+                # print(pred_transcripts, transcripts)
                 gt_fns = pred_fns
                 total_metrics += self._eval_metrics((pred_boxes, pred_transcripts, pred_fns),
                                                     (boxes, transcripts, gt_fns))
@@ -117,6 +120,9 @@ class Trainer(BaseTrainer):
             print('Running validation set ...')
             val_log = self._valid_epoch()
             log = {**log, **val_log}
+            
+        if self.wandb_logger:
+            wandb.log(log)
 
         return log
 
@@ -141,6 +147,7 @@ class Trainer(BaseTrainer):
                         img, boxes, mapping)
                     pred_transcripts = []
                     pred_fns = []
+                    
                     if len(pred_mapping) > 0:
                         pred_fns = [imagePaths[i] for i in pred_mapping]
                         pred, preds_size = pred_recog

@@ -18,8 +18,8 @@ class ICDAR(Dataset):
     def __init__(self, data_root, input_size=512):
         data_root = pathlib.Path(data_root)
         self.input_size = input_size
-        self.imagesRoot = data_root / 'train_images'
-        self.gtRoot = data_root / 'train_gts'
+        self.imagesRoot = data_root / 'train'
+        self.gtRoot = data_root / 'train_gt'
         self.images, self.bboxs, self.transcripts = self.__load_gt()
         # print(self.imagesRoot)
 

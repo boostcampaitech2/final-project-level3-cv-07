@@ -3,7 +3,6 @@ import math
 import torch
 import logging
 
-from tensorboardX import SummaryWriter
 from modules.utils.util import make_dir
 
 
@@ -12,17 +11,16 @@ class BaseTrainer:
     Base class for all trainers
     """
 
-    def __init__(self, model, loss, metrics, resume, config, train_logger=None):
+    def __init__(self, model, loss, metrics, resume, config, save_folder, train_logger=None):
         self.config = config
         self.logger = logging.getLogger(self.__class__.__name__)
         self.model = model
         self.loss = loss
         self.metrics = metrics
-        self.name = config['name']
+        self.name = save_folder
         self.epochs = config['trainer']['epochs']
         self.save_freq = config['trainer']['save_freq']
         self.verbosity = config['trainer']['verbosity']
-        self.summary_writer = SummaryWriter()
 
         # check cuda available
         if torch.cuda.is_available():
@@ -105,15 +103,7 @@ class BaseTrainer:
             if epoch % self.save_freq == 0:
                 self._save_checkpoint(epoch, log)
 
-            # self.summary_writer.add_scalars(str(self.monitor).upper(),
-            #                                 {'train_' + self.monitor: result[self.monitor],
-            #                                  'val_' + self.monitor: result['val_' + self.monitor]}, epoch)
-            self.summary_writer.add_scalars(str(self.monitor).upper(), {'train_' + self.monitor: result[self.monitor]},
-                                            epoch)
-
-            self.summary_writer.add_scalars('LOSS', {'train_loss': result['loss']}, epoch)
-
-        self.summary_writer.close()
+        return log
 
     def _log_memory_useage(self):
         if not self.with_cuda:
