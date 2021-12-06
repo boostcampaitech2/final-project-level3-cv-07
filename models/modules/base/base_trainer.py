@@ -128,7 +128,7 @@ class BaseTrainer:
 
         :param epoch: current epoch number
         :param log: logging information of the epoch
-        :param save_best: if True, rename the saved checkpoint to 'model_best.pth.tar'
+        :param save_best: if True, rename the saved checkpoint to 'model_best.pth'
         """
         arch = type(self.model).__name__
         if save_best:
@@ -137,9 +137,9 @@ class BaseTrainer:
                 'epoch': epoch,
                 'state_dict': self.model.state_dict()
             }
-            filename = os.path.join(self.checkpoint_dir, 'model_best.pth.tar')
+            filename = os.path.join(self.checkpoint_dir, 'model_best.pth')
             torch.save(state, filename)
-            self.logger.info("Saving current best: {} ...".format('model_best.pth.tar'))
+            self.logger.info("Saving current best: {} ...".format('model_best.pth'))
         else:
             state = {
                 'arch': arch,
@@ -150,7 +150,7 @@ class BaseTrainer:
                 'monitor_best': self.monitor_best
             }
             filename = os.path.join(self.checkpoint_dir,
-                                    'checkpoint-epoch{:03d}-loss-{:.4f}.pth.tar'.format(epoch, log['loss']))
+                                    'checkpoint-epoch{:03d}-loss-{:.4f}.pth'.format(epoch, log['loss']))
             torch.save(state, filename)
             self.logger.info("Saving checkpoint: {} ...".format(filename))
 

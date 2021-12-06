@@ -122,6 +122,7 @@ class Trainer(BaseTrainer):
             log = {**log, **val_log}
             
         if self.wandb_logger:
+            log['learning_rate'] = self.optimizer.param_groups[0]['lr']
             wandb.log(log)
 
         return log
