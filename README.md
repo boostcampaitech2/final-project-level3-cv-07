@@ -22,7 +22,13 @@
 |종류|모델|
 |:---:|:---:|
 |Detector|**EAST**|
-|Recognizer|**CRNN or R-Net**|
+|Recognizer|**CRNN or R-Net**|  
+
+**Datasets**
+||데이터셋|
+|:---:|:---:|
+|Train dataset|[ICDAR 2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) & [ICDAR2017](https://rrc.cvc.uab.es/?ch=8&com=downloads)|
+|Test dataset|[ICDAR_2017_valid](https://rrc.cvc.uab.es/?ch=8&com=downloads)|
 ### Openshot(영상편집툴) 
 ![open](https://user-images.githubusercontent.com/82632580/147244480-0eb298f9-64e7-4e7a-bf07-2d57e85002ae.png)  
 
