@@ -22,7 +22,7 @@
 |종류|모델|
 |:---:|:---:|
 |Detector|**EAST**|
-|Recognizer|**CRNN or RNet**|
+|Recognizer|**CRNN or R-Net**|
 ### Openshot(영상편집툴) 
 ![open](https://user-images.githubusercontent.com/82632580/147244480-0eb298f9-64e7-4e7a-bf07-2d57e85002ae.png)  
 
