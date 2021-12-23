@@ -18,8 +18,8 @@ class ICDAR(Dataset):
     def __init__(self, data_root, input_size=512):
         data_root = pathlib.Path(data_root)
         self.input_size = input_size
-        self.imagesRoot = data_root / 'train_images_OEpos'
-        self.gtRoot = data_root / 'train_gts_OEpos'
+        self.imagesRoot = data_root / 'test_images'
+        self.gtRoot = data_root / 'test_gts'
         self.images, self.bboxs, self.transcripts = self.__load_gt()
         # print(self.imagesRoot)
 
@@ -59,32 +59,14 @@ class ICDAR(Dataset):
         image_name = self.images[index]
         bboxes = self.bboxs[index]  # num_words * 8
         transcripts = self.transcripts[index]
-    
+
         try:
             return self.__transform((image_name, bboxes, transcripts))
-            # return self.__load_transformed_image((image_name, bboxes, transcripts))
         except Exception as e:
             return self.__getitem__(torch.tensor(np.random.randint(0, len(self))))
 
     def __len__(self):
         return len(self.images)
-    
-    
-    def __load_transformed_image(self, gt):
-        image_path, wordBBoxes, transcripts = gt
-        image = cv2.imread(image_path.as_posix())
-        image = image.astype(np.float32)
-        
-        rectangles = []
-        for wordbbox in wordBBoxes:
-            rectangles.append(np.array(wordbbox, dtype=np.float32).flatten())
-            
-        score_maps = np.zeros((128, 128, 1), dtype=np.float32)
-        geo_maps = np.zeros((128, 128, 5), dtype=np.float32)
-        training_masks = np.ones((128, 128, 1), dtype=np.float32)
-        
-        return image_path, image, score_maps, geo_maps, training_masks, transcripts, rectangles
-    
 
     def __transform(self, gt, random_scale=np.array([0.5, 1, 2.0, 3.0]), background_ratio=3. / 8):
         """
@@ -158,14 +140,10 @@ class ICDAR(Dataset):
 
             transcripts = [transcripts[i] for i in selected_poly]
             mask = [not (word == '*' or word == '###') for word in transcripts]
-            for rectangle_idx in range(len(rectangles)):      # erase wrong bbox annotation
-                if rectangles[rectangle_idx][0] == '*':
-                    mask[rectangle_idx] = False
-                    print('Erase a wrong point in '+str(image_path)+' - line '+str(rectangle_idx))
             transcripts = list(compress(transcripts, mask))
             rectangles = list(compress(rectangles, mask))  # [ [pt1, pt2, pt3, pt3],  ]
 
-            assert len(transcripts) == len(rectangles)  # make sure length of transcripts equal to length of boxes
+            assert len(transcripts) == len(rectangles)  # make sure length of transcipts equal to length of boxes
             if len(transcripts) == 0:
                 raise RuntimeError('No text found.')
 

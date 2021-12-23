@@ -137,51 +137,27 @@ def weights_init(m):
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
-
-
-class Backbone(BaseModel):
-
-    def __init__(self, config):
-        super(Backbone, self).__init__(config)
-        self.backbone = resnet101(pretrained=True)
-        b_model_dict = self.backbone.state_dict()
-        pre_trainmodel = checkpoint['state_dict']['0']
-        keys = list(pre_trainmodel.keys())
-        # replace parameters
-        for k in b_model_dict.keys():
-            if "backbone."+k in keys:
-                b_model_dict[k] = pre_trainmodel["backbone."+k]
-        
-        self.backbone.load_state_dict(b_model_dict)
-
-    def forward(self, inputs):
-        return self.backbone(inputs)
-
-
         
 class Recognizer(BaseModel):
 
     def __init__(self, nclass, config):
         super().__init__(config)
-        
-        self.crnn = CRNN(32, 1, nclass, 256)
-        # self.crnn.apply()
-        # pre_trainmodel = torch.load('./modules/models/core/pretrain/crnn.pth')
-        pre_trainmodel = checkpoint['state_dict']['2']
-        model_dict = self.crnn.state_dict()
-        # replace the classfidy layer parameters
-        # for k,v in model_dict.items():
-        #     if not (k == 'rnn.1.embedding.weight' or k == 'rnn.1.embedding.bias' or k == 'cnn.batchnorm2.num_batches_tracked'
-        #            or k == 'cnn.batchnorm4.num_batches_tracked' or k == 'cnn.batchnorm6.num_batches_tracked'):
-        #                 model_dict[k] = pre_trainmodel[k]
-        for k,v in model_dict.items():
-            if not (k == 'rnn.1.embedding.weight' or k == 'rnn.1.embedding.bias' or k == 'cnn.batchnorm2.num_batches_tracked'
-                   or k == 'cnn.batchnorm4.num_batches_tracked' or k == 'cnn.batchnorm6.num_batches_tracked'):
-                        model_dict[k] = pre_trainmodel["crnn."+k]
-                
-
-        self.crnn.load_state_dict(model_dict)
-        # self.crnn.register_backward_hook(self.crnn.backward_hook)
+        if "recognition" not in config:
+            self.crnn = CRNN(32, 1, nclass, 256)
+            # self.crnn.apply(weights_init)
+            pre_trainmodel = torch.load('./modules/models/core/pretrain/crnn.pth')
+            model_dict = self.crnn.state_dict()
+            # replace the classfidy layer parameters
+            for k,v in model_dict.items():
+                if not (k == 'rnn.1.embedding.weight' or k == 'rnn.1.embedding.bias' or k == 'cnn.batchnorm2.num_batches_tracked'
+                       or k == 'cnn.batchnorm4.num_batches_tracked' or k == 'cnn.batchnorm6.num_batches_tracked'):
+                    model_dict[k] = pre_trainmodel[k]
+                    
+            self.crnn.load_state_dict(model_dict)
+        else:
+            recog = config['recognition']
+            recog["args"]["nclass"] = nclass
+            self.crnn = getattr(__import__(f"modules.models.core.{recog['name'].lower()}", fromlist=[recog['name']]), recog['name'])(**recog["args"])
 
     def forward(self, inputs):
         return self.crnn(inputs)
@@ -205,3 +181,6 @@ class Detector(BaseModel):
         geometry = torch.cat([geoMap, angleMap], dim=1)
 
         return score, geometry
+    
+   
+    
