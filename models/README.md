@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ## Dataset Structure
 
-During training, we use [ICDAR 2015](https://rrc.cvc.uab.es/?ch=4&com=downloads). In addition, we use [ICDAR 2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) Test Set for validating our model.<br /><br />
+During training, we use [ICDAR 2015](https://rrc.cvc.uab.es/?ch=4&com=downloads)&[ICDAR2017](https://rrc.cvc.uab.es/?ch=8&com=downloads). In addition, we use [ICDAR_2017_valid](https://rrc.cvc.uab.es/?ch=8&com=downloads) for test our model.<br /><br />
 
 The dataset should structure as follows:
 
@@ -29,9 +29,13 @@ The dataset should structure as follows:
 │   ├── gt_img_1.txt
 │   ├── gt_img_2.txt
 │   └── ...
-└── test_images
-    ├── img_1.jpg
-    ├── img_2.jpg
+├── test_images
+|   ├── img_1.jpg
+|   ├── img_2.jpg
+|    └── ...
+└── train_gts
+    ├── gt_img_1.txt
+    ├── gt_img_2.txt
     └── ...
 ```
 Note: the [dataset root directory] should be placed in "config.json" file. <br /><br />
@@ -53,6 +57,10 @@ Note: check the "config.json" file, which is used to adjust the training configu
 Test the model you trained
 ```
 python eval.py
+```
+Test the model with checking the score
+```
+python test.py
 ```
 
 If you want to change "your model, input images, output folder", check the eval.py file.
