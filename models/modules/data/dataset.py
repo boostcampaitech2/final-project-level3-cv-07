@@ -10,6 +10,17 @@ from modules.data.utils import crop_area
 from modules.data.utils import generate_rbox
 from modules.data.utils import check_and_validate_polys
 
+# randon argmentation
+from modules.data.util.transforms import transforms_info
+import random
+from typing import Callable, Dict, Tuple
+import PIL
+import PIL.ImageDraw
+import PIL.ImageEnhance
+import PIL.ImageOps
+import torchvision.transforms.functional as F
+from PIL.Image import Image
+
 logger = logging.getLogger(__name__)
 
 
@@ -87,8 +98,24 @@ class ICDAR(Dataset):
             rd_scale = np.random.choice(random_scale)
             im = cv2.resize(im, dsize=None, fx=rd_scale, fy=rd_scale)
             text_polys *= rd_scale
-
+            
             rectangles = []
+
+            #random augmentation
+            rand_arg = False
+            if rand_arg :
+                image=PIL.Image.fromarray(np.uint8(im))
+                transform_infos = transforms_info()
+                transform_list = list(transform_infos)
+                chosen_transforms = random.sample(transform_list, k=3)
+
+                for idx, trans in enumerate(chosen_transforms):
+                    transform_func, low, high = transform_infos[trans]
+                    level = random.uniform(low, high)
+                    # print(transcripts)
+                    image, text_polys, transcripts = transform_func(image, text_polys, transcripts, level)
+                im = np.array(image)
+
 
             # random crop a area from image
             if np.random.rand() < background_ratio:
