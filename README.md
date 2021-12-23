@@ -16,7 +16,7 @@
 ## ⚙️Pipeline
 ![화면 캡처 2021-12-23 210528](https://user-images.githubusercontent.com/82632580/147240587-577c9408-8add-4cd5-b465-6dc6d665669e.png)
 ### Model 설정  
-- 영상 편집이라는 목적에 맞게 inference가 빠르고 가벼운 모델 선정    
+- 영상 편집이라는 상황에 맞게 inference가 빠르고 가벼운 모델 선정    
   
 ![화면 캡처 2021-12-23 212230](https://user-images.githubusercontent.com/82632580/147240612-5ec7ecf5-eee4-4f0c-a487-fd9f31f07abc.png) 
 |종류|모델|
