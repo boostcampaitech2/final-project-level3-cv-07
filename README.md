@@ -19,13 +19,10 @@
 - 영상 편집이라는 목적에 맞게 inference가 빠르고 가벼운 모델 선정    
   
 ![화면 캡처 2021-12-23 212230](https://user-images.githubusercontent.com/82632580/147240612-5ec7ecf5-eee4-4f0c-a487-fd9f31f07abc.png) 
-
-**실험에 사용된 Recognizer**    
-
-![crnn](https://user-images.githubusercontent.com/82632580/147243904-0b220b71-37bf-45a0-bb9c-741fdf97ed15.png)
-
-![rnet](https://user-images.githubusercontent.com/82632580/147243944-30526803-694b-4c66-adaa-993009688e4b.png)
-
+|종류|모델|
+|:---:|:---:|
+|Detector|**EAST**|
+|Recognizer|**CRNN or RNet**|
 ### Openshot(영상편집툴) 
 ![open](https://user-images.githubusercontent.com/82632580/147244480-0eb298f9-64e7-4e7a-bf07-2d57e85002ae.png)  
 
