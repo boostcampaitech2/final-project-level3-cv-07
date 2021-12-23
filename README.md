@@ -62,8 +62,5 @@
 
 ```
 
-## 🔧Enviroments
-- requirements.txt로 셋팅
-```
-pip install -r requirements.txt
-```
+## 🔧Requirements
+Install packages : `pip install -r requirements.txt`
