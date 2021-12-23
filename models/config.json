@@ -2,34 +2,26 @@
     "name": "CRNN",
     "cuda": true,
     "gpus": [0],
-    "recognition": {
-        "name": "CRNN",
-        "args": {
-            "imgH": 32, 
-            "nc": 1,  
-            "nh": 256
-        }
-    },
     "input": "image",
     "data_loader": {
         "data_dir": "datasets",
         "input_size": 512,
-        "batch_size": 4,
+        "batch_size": 8,
         "shuffle": true,
-        "workers": 5
+        "workers": 8
     },
     "validation": {
         "skip_lt_epoch": 0,
         "validation_split": 0.1,
         "shuffle": true
     },
-    "optimizer_type": "Adam",
+    "optimizer_type": "AdamW",
     "optimizer": {
         "lr": 0.0001,
         "weight_decay": 1e-5
     },
     "trainer": {
-        "epochs": 200,
+        "epochs": 250,
         "save_dir": "saved/",
         "save_freq": 10,
         "verbosity": 2,
@@ -40,6 +32,6 @@
     "debug": true,
     "wandb": {
         "project": "final_project",
-        "name": "crnn_base"
+        "name": "crnn_hp_tune"
     }
 }
