@@ -1,0 +1,32 @@
+name: CICD-SSH
+on:
+  push:
+      branches: [ main ]
+      paths:
+        - 'server/**'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote ssh commands using ssh key
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }} 
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+            cd ${{ github.event.repository.name }}/server
+            bash scripts/git_cicd.sh
+    - name: action-slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        author_name: Jinhyung
+        fields: repo,commit,message,author # action,eventName,ref,workflow,job,took 추가할 수 있음
+        mention: here
+        if_mention: failure,cancelled
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEB_HOOK_JIN }} # required
+      if: always() # Pick up events even if the job fails or is canceled.

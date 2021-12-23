@@ -55,15 +55,15 @@ class VidCapsListView(QListWidget):
         # get current timestamp
         fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
-        current_position = (self.win.preview_thread.current_frame - 1) / fps_float
+        current_position = int((self.win.preview_thread.current_frame - 1) / fps_float)
         current_timestamp = secondsToTimecode(current_position, fps["num"], fps["den"], use_milliseconds=True)
 
         
         # get detection result with current timestamp
         current_bbox = []
-        if current_timestamp in self.win.timeline_sync.detections:
-            current_bbox = self.win.timeline_sync.detections[current_timestamp]
-        return current_timestamp, current_bbox
+        if current_position in self.win.timeline_sync.detections:
+            current_bbox = self.win.timeline_sync.detections[current_position]
+        return current_position, current_bbox
 
     def update(self):
         timestamp, self.bboxs = self.get_bbox()
@@ -77,7 +77,7 @@ class VidCapsListView(QListWidget):
         layout = QBoxLayout(QBoxLayout.TopToBottom)
         self.viewer = QListWidget(self)
 
-        for i, v in enumerate(self.listCheckBox[1:]):
+        for i, v in enumerate(self.listCheckBox[1:-1]):
             if type(v) == int:
                 continue
             # Make checkbox
