@@ -26,6 +26,16 @@ class Trainer(BaseTrainer):
         self.skip_val_lt_epoch = config['validation']['skip_lt_epoch']
         self.label_converter = StringLabelConverter(keys)
         self.wandb = wandb
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                                                        self.optimizer,
+                                                        max_lr=self.config["optimizer"]['lr'],
+                                                        steps_per_epoch=len(self.data_loader),
+                                                        epochs=self.config["trainer"]["epochs"],
+                                                        pct_start=0.2
+                                                        )
+        # torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
+        #                                                        T_max=10,
+        #                                                        eta_min=1e-4)
 
     def _to_tensor(self, *tensors):
         t = []
@@ -78,6 +88,7 @@ class Trainer(BaseTrainer):
                 loss = iou_loss + cls_loss + reg_loss
                 loss.backward()
                 self.optimizer.step()
+                self.scheduler.step()
 
                 total_loss += loss.item()
                 pred_transcripts = []
