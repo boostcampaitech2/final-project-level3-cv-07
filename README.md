@@ -38,3 +38,32 @@
     - Github Action과 Docker사용
     - CI & CD 결과를 즉각적으로 알 수 있게 Slack으로 결과 전송
     - base Docker Image 생성하여 재배포 시간 30초 이내 시행
+
+## 📂 Work Directory
+```
+├──models          # model & trainer
+|   ├──configs           
+|   ├──modules   # crnn & rnet
+|   ├──config.json 
+|   ├──eval.py     
+|   └──train.py    
+├──openshot-qt     # front OpenShot Video Editor
+|   ├──doc          
+|   ├──images      
+|   ├──installer   
+|   ├──xdg         
+|   └──src         
+├──server          # fastAPI server
+|   ├──modules
+|   ├──saved/new
+|   ├──scripts
+|   └──server
+└──.github/workflows
+
+```
+
+## 🔧Enviroments
+- requirements.txt로 셋팅
+```
+pip install -r requirements.txt
+```
