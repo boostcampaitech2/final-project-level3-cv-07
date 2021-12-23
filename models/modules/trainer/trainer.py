@@ -5,6 +5,8 @@ from modules.utils.converter import keys
 from modules.base.base_trainer import BaseTrainer
 from modules.utils.converter import StringLabelConverter
 
+from torch.optim import lr_scheduler
+
 
 class Trainer(BaseTrainer):
     """
@@ -26,6 +28,13 @@ class Trainer(BaseTrainer):
         self.skip_val_lt_epoch = config['validation']['skip_lt_epoch']
         self.label_converter = StringLabelConverter(keys)
         self.wandb = wandb
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            self.optimizer,
+            max_lr=config['optimizer']['lr'],
+            steps_per_epoch=len(data_loader),
+            epochs=config['trainer']['epochs'],
+            pct_start=0.05,
+        )
 
     def _to_tensor(self, *tensors):
         t = []
@@ -78,6 +87,7 @@ class Trainer(BaseTrainer):
                 loss = iou_loss + cls_loss + reg_loss
                 loss.backward()
                 self.optimizer.step()
+                self.scheduler.step()
 
                 total_loss += loss.item()
                 pred_transcripts = []
@@ -107,7 +117,8 @@ class Trainer(BaseTrainer):
                         "train/Loss" : loss.item(),
                         "train/IOU Loss": iou_loss.item(),
                         "train/CLS Loss" : cls_loss.item(),
-                        "Recognition Loss" : reg_loss.item()
+                        "Recognition Loss" : reg_loss.item(),
+                        "lr" : self.scheduler.optimizer.param_groups[0]['lr']
                         })
 
             except Exception:
