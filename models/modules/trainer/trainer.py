@@ -26,6 +26,16 @@ class Trainer(BaseTrainer):
         self.skip_val_lt_epoch = config['validation']['skip_lt_epoch']
         self.label_converter = StringLabelConverter(keys)
         self.wandb = wandb
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                                                        self.optimizer,
+                                                        max_lr=self.config["optimizer"]['lr'],
+                                                        steps_per_epoch=len(self.data_loader),
+                                                        epochs=self.config["trainer"]["epochs"],
+                                                        pct_start=0.2
+                                                        )
+        # torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
+        #                                                        T_max=10,
+        #                                                        eta_min=1e-4)
 
     def _to_tensor(self, *tensors):
         t = []
@@ -57,13 +67,7 @@ class Trainer(BaseTrainer):
 
         total_loss = 0
         total_metrics = np.zeros(3)  # precious, recall, hmean
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(
-                                                        self.optimizer,
-                                                        max_lr=self.config["optimizer"]['lr'],
-                                                        steps_per_epoch=len(self.data_loader),
-                                                        epochs=epoch,
-                                                        pct_start=0.2
-                                                        )
+        
         for batch_idx, gt in enumerate(self.data_loader):
             try:
                 image_paths, img, score_map, geo_map, training_mask, transcripts, boxes, mapping = gt
@@ -87,6 +91,7 @@ class Trainer(BaseTrainer):
                 loss = iou_loss + cls_loss + reg_loss
                 loss.backward()
                 self.optimizer.step()
+                self.scheduler.step()
 
                 total_loss += loss.item()
                 pred_transcripts = []
@@ -116,13 +121,14 @@ class Trainer(BaseTrainer):
                         "train/Loss" : loss.item(),
                         "train/IOU Loss": iou_loss.item(),
                         "train/CLS Loss" : cls_loss.item(),
-                        "Recognition Loss" : reg_loss.item()
+                        "Recognition Loss" : reg_loss.item(),
+                        "Lr" : self.scheduler.optimizer.param_groups[0]['lr']
                         })
 
             except Exception:
                 print(image_paths)
                 raise
-        scheduler.step()
+        
 
         log = {
             'loss': total_loss / len(self.data_loader),
