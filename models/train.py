@@ -27,8 +27,9 @@ def main(config, resume):
     model.summary()
 
     wandb.init(
-        project='fots',
-        name='scheduler2017'
+        project=config["wandb"]["project"],
+        name=config["wandb"]["name"],
+        config=config
     )
     
     loss = E2ELoss()
@@ -41,8 +42,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='MLT-OCR')
     parser.add_argument('-r', '--resume', default=None, type=str, help='path to latest checkpoint (default: None)')
+    parser.add_argument('-c', '--config', default='config.json', type=str, help='config json file path')
     args = parser.parse_args()
-    config = json.load(open('config.json'))
+    config = json.load(open(args.config))
     if args.resume:
         logger.warning('Warning: --config overridden by --resume')
 

@@ -1,20 +1,19 @@
 {
-    "name": "CRNN",
+    "name": "Base_RNet",
     "cuda": true,
     "gpus": [0],
     "recognition": {
-        "name": "CRNN",
+        "name": "RNet",
         "args": {
-            "imgH": 32, 
             "nc": 1,  
             "nh": 256
         }
     },
     "input": "image",
     "data_loader": {
-        "data_dir": "datasets",
+        "data_dir": "datasets/v1",
         "input_size": 512,
-        "batch_size": 16,
+        "batch_size": 4,
         "shuffle": true,
         "workers": 5
     },
@@ -23,13 +22,13 @@
         "validation_split": 0.1,
         "shuffle": true
     },
-    "optimizer_type": "AdamW",
+    "optimizer_type": "Adam",
     "optimizer": {
-        "lr": 0.001,
+        "lr": 0.0001,
         "weight_decay": 1e-5
     },
     "trainer": {
-        "epochs": 200,
+        "epochs": 250,
         "save_dir": "saved/",
         "save_freq": 10,
         "verbosity": 2,
@@ -37,9 +36,9 @@
         "monitor": "val/hmean",
         "monitor_mode": "max"
     },
-    "debug": true,
+    "debug": false,
     "wandb": {
-        "project": "final_project",
-        "name": "crnn_base"
+        "project": "OE",
+        "name": "rnet"
     }
 }

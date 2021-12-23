@@ -32,7 +32,7 @@ def default_evaluation_params():
         'LTRB': False,  # LTRB:2points(left,top,right,bottom) or 4 points(x1,y1,x2,y2,x3,y3,x4,y4)
         'CRLF': False,  # Lines are delimited by Windows CRLF format
         'CONFIDENCES': False,  # Detections must include confidence value. MAP and MAR will be calculated,
-        'SPECIAL_CHARACTERS': '!?.:,*"()·[]/\'',
+        'SPECIAL_CHARACTERS': '`=;,./~!@#$%^&*()_+|:<>?°·£¥₩€-\[\]\'\"\{\}\\',
         'ONLY_REMOVE_FIRST_LAST_CHARACTER': True
     }
 
@@ -148,7 +148,7 @@ def evaluate_method(pred: Tuple[dict], gt: Tuple[dict], evaluationParams: dict) 
 
         return AP
 
-    def transcription_match(transGt, transDet, specialCharacters='!?.:,*"()·[]/\'',
+    def transcription_match(transGt, transDet, specialCharacters='`=;,./~!@#$%^&*()_+|:<>?°·£¥₩€-\[\]\'\"\{\}\\',
                             onlyRemoveFirstLastCharacterGT=True):
 
         if onlyRemoveFirstLastCharacterGT:
@@ -195,7 +195,7 @@ def evaluate_method(pred: Tuple[dict], gt: Tuple[dict], evaluationParams: dict) 
         # hypens at init or final of the word
         transcription = transcription.strip('-');
 
-        specialCharacters = "'!?.:,*\"()·[]/";
+        specialCharacters = "`=;,./~!@#$%^&*()_+|:<>?°·£¥₩€-\[\]\'\"\{\}\\";
         for character in specialCharacters:
             transcription = transcription.replace(character, ' ')
 
@@ -243,7 +243,7 @@ def evaluate_method(pred: Tuple[dict], gt: Tuple[dict], evaluationParams: dict) 
         # hypens at init or final of the word
         transcription = transcription.strip('-');
 
-        specialCharacters = "'!?.:,*\"()·[]/"
+        specialCharacters = "`=;,./~!@#$%^&*()_+|:<>?°·£¥₩€-\[\]\'\"\{\}\\"
         for character in specialCharacters:
             transcription = transcription.replace(character, ' ')
 
