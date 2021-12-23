@@ -20,6 +20,8 @@ from modules.models.metric import icdar_metric
 from modules.data.utils import collate_fn
 from modules.data.dataset_test import ICDAR
 
+from tqdm import tqdm
+
 import numpy as np
 
 logging.basicConfig(level=logging.DEBUG, format='')
@@ -66,7 +68,7 @@ def tester(model, dataloader):
     label_converter = StringLabelConverter(keys)
     
     with torch.no_grad():
-        for batch_idx, gt in enumerate(test_data_loader):
+        for batch_idx, gt in enumerate(tqdm(test_data_loader)):
             try:
                 imagePaths, img, score_map, geo_map, training_mask, transcripts, boxes, mapping = gt
                 img, score_map, geo_map, training_mask = _to_tensor(img, score_map, geo_map, training_mask)
@@ -104,12 +106,10 @@ def make_image(output_dir, input_image, model, with_gpu):
     files_grabbed = []
     for files in types:
         files_grabbed.extend(input_image.glob(files))
-    for image_fn in files_grabbed:
+    for image_fn in tqdm(files_grabbed):
         try:
             with torch.no_grad():
-                print('start predict')
                 ploy, im = predict(image_fn, model, True, output_dir, with_gpu)
-                print(image_fn, len(ploy))
         except Exception as e:
             print('excepted')
             traceback.print_exc()
@@ -128,24 +128,25 @@ def main(args: argparse.Namespace):
     model = load_model(model_path, with_gpu)
     if save_data :
         make_image(output_dir, input_image, model, with_gpu)
-            
+    
+    print(f'model : {model_path}')
     icdar_dataset = ICDAR(data_root, input_size)
     print(f'Length of dataset : {len(icdar_dataset)}')
     test_dataloader = torchdata.DataLoader(icdar_dataset, num_workers=args.num_workers, batch_size=args.batch_size,
                                          shuffle=False, collate_fn=collate_fn)
     print('make dataloader success')
     precious, recall, hmean = tester(model, test_dataloader).values()
-    print(f'result : pricious-{precious}, recall-{recall}, hmean-{hmean}')
+    print(f'result : pricious-{precious}, recall-{recall}, hmean-{hmean}\n')
 
 if __name__ == '__main__':
     logger = logging.getLogger()
 
     parser = argparse.ArgumentParser(description='Model test')
-    parser.add_argument('-m', '--model', default='saved/CRNN/model_best.pth.tar', type=pathlib.Path, required=False, help='path to model')
-    parser.add_argument('-o', '--output_dir', default='output/test', type=pathlib.Path, help='output dir for drawn images')
+    parser.add_argument('-m', '--model', default='saved/CRNN_mish_adamW_0.5827.pth.tar', type=pathlib.Path, required=False, help='path to model')
+    parser.add_argument('-o', '--output_dir', default='output/test_CRNN_2015_tra', type=pathlib.Path, help='output dir for drawn images')
     parser.add_argument('-d', '--data_root', default='datasets', type=pathlib.Path, required=False, help='dir for input image')
-    parser.add_argument('-b', '--batch_size', default=4, type=int, help='batch size')
-    parser.add_argument('-n', '--num_workers', default=2, type=int, help='num worker')
+    parser.add_argument('-b', '--batch_size', default=1, type=int, help='batch size')
+    parser.add_argument('-n', '--num_workers', default=1, type=int, help='num worker')
     parser.add_argument('-i', '--input_size', default=512, type=int, help='input image size')
     parser.add_argument('-s', '--save_data', default=True, type=bool, help='determine save data')
     args = parser.parse_args()
