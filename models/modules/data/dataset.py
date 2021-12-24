@@ -26,12 +26,14 @@ logger = logging.getLogger(__name__)
 
 class ICDAR(Dataset):
 
-    def __init__(self, data_root, input_size=512):
-        data_root = pathlib.Path(data_root)
-        self.input_size = input_size
-        self.imagesRoot = data_root / 'train_images'
-        self.gtRoot = data_root / 'train_gts'
+    def __init__(self, config):
+        self.input_size = config['data_loader']['input_size']
+
+        data_root = pathlib.Path(config['data_loader']['data_dir'])
+        self.imagesRoot = data_root / config['data_loader']['images_dir']
+        self.gtRoot = data_root / config['data_loader']['train_gts']
         self.images, self.bboxs, self.transcripts = self.__load_gt()
+        self.rand_aug = config['data_loader']['rand_aug']
         # print(self.imagesRoot)
 
     def __load_gt(self):
@@ -80,22 +82,6 @@ class ICDAR(Dataset):
     def __len__(self):
         return len(self.images)
     
-    
-    def __load_transformed_image(self, gt):
-        image_path, wordBBoxes, transcripts = gt
-        image = cv2.imread(image_path.as_posix())
-        image = image.astype(np.float32)
-        
-        rectangles = []
-        for wordbbox in wordBBoxes:
-            rectangles.append(np.array(wordbbox, dtype=np.float32).flatten())
-            
-        score_maps = np.zeros((128, 128, 1), dtype=np.float32)
-        geo_maps = np.zeros((128, 128, 5), dtype=np.float32)
-        training_masks = np.ones((128, 128, 1), dtype=np.float32)
-        
-        return image_path, image, score_maps, geo_maps, training_masks, transcripts, rectangles
-    
 
     def __transform(self, gt, random_scale=np.array([0.5, 1, 2.0, 3.0]), background_ratio=3. / 8):
         """
@@ -119,9 +105,8 @@ class ICDAR(Dataset):
             
             rectangles = []
 
-            #random augmentation
-            rand_arg = False
-            if rand_arg :
+            # random augmentation - adjust 3 augmentation among transforms.py
+            if self.rand_aug :
                 image=PIL.Image.fromarray(np.uint8(im))
                 transform_infos = transforms_info()
                 transform_list = list(transform_infos)
@@ -130,7 +115,6 @@ class ICDAR(Dataset):
                 for idx, trans in enumerate(chosen_transforms):
                     transform_func, low, high = transform_infos[trans]
                     level = random.uniform(low, high)
-                    # print(transcripts)
                     image, text_polys, transcripts = transform_func(image, text_polys, transcripts, level)
                 im = np.array(image)
 
@@ -199,3 +183,20 @@ class ICDAR(Dataset):
             return image_path, images, score_maps, geo_maps, training_masks, transcripts, rectangles
         else:
             raise TypeError('Number of bboxes is inconsist with number of transcripts ')
+
+    
+    # get item without transformation - only for pre resized data
+    def __load_transformed_image(self, gt):
+        image_path, wordBBoxes, transcripts = gt
+        image = cv2.imread(image_path.as_posix())
+        image = image.astype(np.float32)
+        
+        rectangles = []
+        for wordbbox in wordBBoxes:
+            rectangles.append(np.array(wordbbox, dtype=np.float32).flatten())
+            
+        score_maps = np.zeros((128, 128, 1), dtype=np.float32)
+        geo_maps = np.zeros((128, 128, 5), dtype=np.float32)
+        training_masks = np.ones((128, 128, 1), dtype=np.float32)
+        
+        return image_path, image, score_maps, geo_maps, training_masks, transcripts, rectangles

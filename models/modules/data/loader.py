@@ -11,9 +11,7 @@ class ICDARDataLoader:
         self.shuffle = config['data_loader']['shuffle']
         self.num_workers = config['data_loader']['workers']
         self.val_split_ratio = self.config['validation']['validation_split']
-        data_root = config['data_loader']['data_dir']
-        input_size = config['data_loader']['input_size']
-        icdar_dataset = ICDAR(data_root, input_size)
+        icdar_dataset = ICDAR(config)
         if self.val_split_ratio > 0:
             self.__train_set, self.__val_set = self.__train_val_split(icdar_dataset)
         else:
