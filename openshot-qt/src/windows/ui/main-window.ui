@@ -1729,6 +1729,14 @@
     <string>Send Current Frame</string>
    </property>
   </action>
+  <action name="actionPrevFrame">
+   <property name="text">
+    <string>Save transcript</string>
+   </property>
+   <property name="toolTip">
+    <string>Save transcript</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

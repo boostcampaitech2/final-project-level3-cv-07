@@ -29,7 +29,7 @@ from PyQt5.QtCore import (
     Qt, QCoreApplication, QPointF, QPoint, QRect, QRectF, QSize, QMutex, QTimer
 )
 from PyQt5.QtGui import (
-    QTransform, QPainter, QIcon, QColor, QPen, QBrush, QCursor, QImage, QRegion, QPolygon, QFont
+    QTransform, QPainter, QIcon, QColor, QPen, QBrush, QCursor, QImage, QRegion, QPolygon, QFont, QPixmap
 )
 from PyQt5.QtWidgets import QSizePolicy, QWidget, QPushButton, QLabel
 
@@ -387,10 +387,16 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             painter.resetTransform()
 
         ### [Modify] ###
-        timestamp, bboxs = self.win.vidCapListView.get_bbox()
-        for bbox in bboxs[1:-1]:
-            if bbox["checked"]:
-                self.draw_text(painter, bbox["point"], bbox["translation"], bbox["color"], bboxs[-1])
+
+        if self.current_image:
+            self.pixmap = QPixmap(self.current_image.width(), self.current_image.height())
+            self.pixmap.fill(Qt.transparent)
+            box_painter = QPainter(self.pixmap)
+            timestamp, bboxs = self.win.vidCapListView.get_bbox()
+            for bbox in bboxs[1:-1]:
+                if bbox["checked"]:
+                    self.draw_text(painter, bbox["point"], bbox["translation"], bbox["color"], bboxs[-1])
+                    self.draw_text(box_painter, bbox["point"], bbox["translation"], bbox["color"], bboxs[-1], True)
         ### [End] ###
 
         # End painter
@@ -398,14 +404,17 @@ class VideoWidget(QWidget, updates.UpdateInterface):
 
         self.mutex.unlock()
 
-    def draw_text(self, qp, bbox, translation, colors, original_frame):
+    def draw_text(self, qp, bbox, translation, colors, original_frame, is_box_painter=False):
         # make qpoint list
         qpoint_list = []
         viewport_rect = self.centeredViewport(self.width(), self.height())
         start_point = [viewport_rect.x(), viewport_rect.y()]
         ratio = [self.current_image.width()/original_frame.width(), self.current_image.height()/original_frame.height()]
         for point in bbox:
-            qpoint_list.append(QPoint((point[0]+start_point[0])*ratio[0], (point[1]+start_point[1])*ratio[1]))
+            if is_box_painter:
+                qpoint_list.append(QPoint((point[0])*ratio[0], (point[1])*ratio[1]))
+            else:
+                qpoint_list.append(QPoint((point[0]+start_point[0])*ratio[0], (point[1]+start_point[1])*ratio[1]))
         polygon = QPolygon(qpoint_list)
         poly_rect = polygon.boundingRect()
 
@@ -418,13 +427,16 @@ class VideoWidget(QWidget, updates.UpdateInterface):
         qp.setPen(pen)
 
         # Text
-        bbox_center_x = start_point[0] + (bbox[0][0] + bbox[2][0])/2
-        bbox_center_y = start_point[1] + (bbox[0][1] + bbox[2][1])/2
+        # bbox_center_x = start_point[0] + (bbox[0][0] + bbox[2][0])/2
+        # bbox_center_y = start_point[1] + (bbox[0][1] + bbox[2][1])/2
         # box_painter.translate(bbox_center_x, bbox_center_y)
         # box_painter.rotate(90)
         # box_painter.translate(-bbox_center_x, -bbox_center_y)
         qp.setFont(QFont('Arial', min(poly_rect.height(), poly_rect.width())*0.6, weight=1.2))
-        text_points = QPoint((start_point[0] + bbox[0][0])*ratio[0], (start_point[1] + bbox[0][1]+poly_rect.height()*0.75)*ratio[1])
+        if is_box_painter:
+            text_points = QPoint((bbox[0][0])*ratio[0], (bbox[0][1]+poly_rect.height()*0.75)*ratio[1])
+        else:
+            text_points = QPoint((start_point[0] + bbox[0][0])*ratio[0], (start_point[1] + bbox[0][1]+poly_rect.height()*0.75)*ratio[1])
         qp.drawText(text_points, translation)
 
     def centeredViewport(self, width, height):
@@ -490,7 +502,6 @@ class VideoWidget(QWidget, updates.UpdateInterface):
 
             # Map region (due to zooming)
             mapped_region_rect = self.region_transform.mapToPolygon(region_rect.toRect()).boundingRect()
-
             # Render a scaled version of the region (as a QImage)
             # TODO: Grab higher quality pixmap from the QWidget, as this method seems to be 1/2 resolution
             # of the original QWidget video element.
@@ -1251,8 +1262,11 @@ class VideoWidget(QWidget, updates.UpdateInterface):
         self.resize_button.setStyleSheet('QPushButton { margin: 10px; padding: 2px; }')
         self.resize_button.clicked.connect(self.resize_button_clicked)
         self.resize_button.setMouseTracking(True)
-
         self.text_transform = None
+
+        # [Modify]
+        self.pixmap = None
+        self.mapped_region_rect = None
 
         # Load icon (using display DPI)
         self.cursors = {}

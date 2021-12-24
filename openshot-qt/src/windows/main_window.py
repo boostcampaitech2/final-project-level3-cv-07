@@ -28,8 +28,6 @@
  """
 
 import os
-import cv2
-import numpy
 import shutil
 import webbrowser
 from copy import deepcopy
@@ -39,7 +37,7 @@ from uuid import uuid4
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 from PyQt5.QtCore import (
     Qt, pyqtSignal, QCoreApplication, PYQT_VERSION_STR,
-    QTimer, QDateTime, QFileInfo, QUrl, QBuffer, QByteArray, QIODevice
+    QTimer, QDateTime, QFileInfo, QUrl, QBuffer, QByteArray, QIODevice, QPoint
     )
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QTextCursor, QPixmap
 from PyQt5.QtWidgets import (
@@ -59,7 +57,7 @@ from classes.importers.edl import import_edl
 from classes.importers.final_cut_pro import import_xml
 from classes.logger import log
 from classes.metrics import track_metric_session, track_metric_screen
-from classes.query import Clip, Transition, Marker, Track, Effect
+from classes.query import Clip, Transition, Marker, Track, Effect, File
 from classes.thumbnail import httpThumbnailServerThread
 from classes.time_parts import secondsToTimecode
 from classes.timeline import TimelineSync
@@ -67,7 +65,6 @@ from classes.version import get_current_Version
 from windows.models.effects_model import EffectsModel
 
 from windows.models.emoji_model import EmojisModel
-from windows.models.vidCap_model import VidCapsModel
 
 from windows.models.files_model import FilesModel
 from windows.models.transition_model import TransitionsModel
@@ -88,6 +85,7 @@ from windows.views.transitions_treeview import TransitionsTreeView
 from windows.views.tutorial import TutorialManager
 
 import requests
+import json
 from base64 import b64encode
 
 class MainWindow(updates.UpdateWatcher, QMainWindow):
@@ -1131,7 +1129,8 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         img.save(buffer, 'jpg', 75)
         encoded = b64encode(buffer.data()).decode('utf-8')
         # Send image to server & Get RESPONSE
-        url = os.environ['api_url']
+        # url = os.environ['api_url']
+        url = "http://realbro.site/fots/base64"
         files = {
             'file': encoded
         }  
@@ -1150,7 +1149,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         if response.status_code == 200:
             res = response.json()
             res.append(self.videoPreview.centeredViewport(self.videoPreview.width(), self.videoPreview.height()))
-            self.timeline_sync.detections[int(current_position)] = res
+            self.timeline_sync.detections[current_timestamp] = res
         self.vidCapListView.update()
         ### [End] ###
 
@@ -1714,6 +1713,10 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             self.actionSaveFrame.trigger()
         elif key.matches(self.getShortcutByName("actionSendFrame")) == QKeySequence.ExactMatch:
             self.actionSendFrame.trigger()
+        ### [Modify]
+        elif key.matches(self.getShortcutByName("actionPrevFrame")) == QKeySequence.ExactMatch:
+            self.actionPrevFrame.trigger()
+        
         elif key.matches(self.getShortcutByName("actionProperties")) == QKeySequence.ExactMatch:
             self.actionProperties.trigger()
         elif key.matches(self.getShortcutByName("actionTransform")) == QKeySequence.ExactMatch:
@@ -2664,6 +2667,12 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         # self.vidCapsToolbar.addAction(self.actionSendFrame)
         self.tabvidCaps.layout().addWidget(self.vidCapsToolbar)
 
+        # [modify]
+        # Save Current Frame
+        self.vidCapsPrev = QToolBar("Save translation")
+        self.vidCapsPrev.addAction(self.actionPrevFrame)
+        self.tabvidCaps.layout().addWidget(self.vidCapsPrev)
+
         # Add Video Preview toolbar
         self.videoToolbar = QToolBar("Video Toolbar")
 
@@ -2871,6 +2880,36 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             self.cache_object.Clear()
         # Update cache reference, so it doesn't go out of scope
         self.cache_object = new_cache_object
+
+    ### [Modify] Save current Frame
+    def actionPrevFrame_trigger(self, checked=True):
+        log.info("Get previous frame result")
+        # Get current position
+        app = get_app()
+        fps = app.project.get("fps")
+        fps_float = float(fps["num"]) / float(fps["den"])
+        current_position = (self.preview_thread.current_frame - 1) / fps_float
+        current_timestamp = secondsToTimecode(current_position, fps["num"], fps["den"], use_milliseconds=True)
+
+        path = os.path.join(info.CACHE_PATH, f"{'-'.join(current_timestamp.split(':'))}.png")
+        self.videoPreview.pixmap.save(path, "PNG")
+
+        clip = openshot.Clip(path)
+        reader = clip.Reader()
+        file_data = json.loads(reader.Json(), strict=False)
+        # Determine media type
+        file_data["has_video"] = True
+        file_data["media_type"] = "image"
+        # Save new file to the project data
+        file = File()
+        file.data = file_data
+        file.save()
+        # add translation image to timeline
+        project_duration = get_app().project.get("duration")
+        pixels_per_second = self.sliderZoomWidget.width() / project_duration
+        pos = (self.preview_thread.current_frame) / fps_float * pixels_per_second
+        self.timeline.addClip([file.data['id']], QPoint(pos+140, 5))
+
 
     def initModels(self):
         """Set up model/view classes for MainWindow"""
