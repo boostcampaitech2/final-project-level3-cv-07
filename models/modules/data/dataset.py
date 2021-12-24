@@ -31,7 +31,7 @@ class ICDAR(Dataset):
 
         data_root = pathlib.Path(config['data_loader']['data_dir'])
         self.imagesRoot = data_root / config['data_loader']['images_dir']
-        self.gtRoot = data_root / config['data_loader']['train_gts']
+        self.gtRoot = data_root / config['data_loader']['gts_dir']
         self.images, self.bboxs, self.transcripts = self.__load_gt()
         self.rand_aug = config['data_loader']['rand_aug']
         # print(self.imagesRoot)
