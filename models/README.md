@@ -41,7 +41,7 @@ The dataset should structure as follows:
 Note: the [dataset root directory] should be placed in "config.json" file. <br /><br />
 Sample of ground truth format:
 ```
-x1,y1,x2,y2,x3,y3,x4,y4,transcription
+x1,y1,x2,y2,x3,y3,x4,y4,script,transcription
 ```
 
 
