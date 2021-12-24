@@ -43,7 +43,13 @@ Sample of ground truth format:
 ```
 x1,y1,x2,y2,x3,y3,x4,y4,script,transcription
 ```
-
+## Wandb setting
+```
+wandb login
+```
+Type the above command.
+If a browser link appears, click that, and copy and paste the API Key.
+You can visualize the model's result.
 
 ## Training
 

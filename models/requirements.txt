@@ -32,4 +32,6 @@ urllib3==1.25.9
 Werkzeug==1.0.1
 zipp==3.1.0
 
+wandb==0.12.7
+
 opencv-python==4.2.0
