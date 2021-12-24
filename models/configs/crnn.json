@@ -3,6 +3,9 @@
     "cuda": true,
     "gpus": [0],
     "input": "image",
+    "recognition": {
+        "name": "CRNN"
+    },
     "data_loader": {
         "data_dir": "datasets",
         "images_dir": "train_images",
