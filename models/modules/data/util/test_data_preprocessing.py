@@ -5,6 +5,9 @@ import re
 import cv2
 from tqdm import tqdm
 
+import sys
+sys.path.append('/opt/ml/project/models')
+
 if __name__ == '__main__':
     datasets_path = 'datasets/test_2017'
     file_path = datasets_path + '/train_gts_ori'
