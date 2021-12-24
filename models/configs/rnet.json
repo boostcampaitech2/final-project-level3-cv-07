@@ -11,7 +11,7 @@
     },
     "input": "image",
     "data_loader": {
-        "data_dir": "datasets/v1",
+        "data_dir": "datasets",
         "images_dir": "train_images",
         "gts_dir" : "train_gts",
         "input_size": 512,
