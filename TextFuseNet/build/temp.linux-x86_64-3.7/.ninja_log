@@ -1,0 +1,11 @@
+# ninja log v5
+1	18459	1638411835598524944	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/box_iou_rotated/box_iou_rotated_cpu.o	d61b904617304b0c
+2	19516	1638411836654512996	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/nms_rotated/nms_rotated_cpu.o	7a4101aff83fb3bd
+3	21773	1638411838910487471	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/ROIAlign/ROIAlign_cpu.o	e7995c284ef3d447
+3	22106	1638411839246483669	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/ROIAlignRotated/ROIAlignRotated_cpu.o	56df8500900d6e8c
+0	23470	1638411840606468281	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/vision.o	70b1a2c2f11fcc7
+2	18071	1638411859522254226	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/box_iou_rotated/box_iou_rotated_cpu.o	fb4b4033a8d57e92
+3	19802	1638411861254234623	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/nms_rotated/nms_rotated_cpu.o	4b9ecc7a37749127
+3	21836	1638411863286211626	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/ROIAlignRotated/ROIAlignRotated_cpu.o	bc16fd11b9bb2a24
+4	22033	1638411863482209408	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/ROIAlign/ROIAlign_cpu.o	e1a85ad465382fcb
+2	23269	1638411864718195418	/opt/ml/model-optimization-level3-cv-07/TextFuseNet/build/temp.linux-x86_64-3.7/opt/ml/model-optimization-level3-cv-07/TextFuseNet/detectron2/layers/csrc/vision.o	267bbaf09780d071
