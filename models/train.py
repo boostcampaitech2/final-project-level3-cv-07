@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='MLT-OCR')
     parser.add_argument('-r', '--resume', default=None, type=str, help='path to latest checkpoint (default: None)')
-    parser.add_argument('-c', '--config', default='config.json', type=str, help='config json file path')
+    parser.add_argument('-c', '--config', default='configs/crnn.json', type=str, help='config json file path')
     args = parser.parse_args()
     config = json.load(open(args.config))
     if args.resume:

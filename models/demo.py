@@ -11,8 +11,8 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.functional")
 
 
-def load_model(model_path, with_gpu):
-    config = json.load(open('config.json'))
+def load_model(model_path, config_path, with_gpu):
+    config = json.load(open(config_path))
     checkpoints = torch.load(model_path, map_location='cpu')
     if not checkpoints:
         raise RuntimeError('No checkpoint found.')
@@ -78,11 +78,13 @@ def demo(img, model, with_gpu=False):
 
 def main(args):
     model_path = args.model
+    config_path = args.config
+    video_path = args.video
     with_gpu = True if torch.cuda.is_available() else False
     # with_gpu = False
-    model = load_model(model_path, with_gpu)
+    model = load_model(model_path, config_path, with_gpu)
 
-    cap = cv2.VideoCapture('./datasets/video/demo_test.mp4')
+    cap = cv2.VideoCapture(video_path)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
     ret, img = cap.read()
 
@@ -98,5 +100,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Model demo')
     parser.add_argument('-m', '--model', default='saved/demo/model_best.pth.tar', help='path to model')
+    parser.add_argument('-c', '--config', default='configs/crnn.json', help='path to config')
+    parser.add_argument('-v', '--video', default='./datasets/video/demo_test.mp4', help='path to demo video file')
     args = parser.parse_args()
     main(args)

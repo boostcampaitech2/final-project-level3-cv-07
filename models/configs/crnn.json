@@ -3,12 +3,18 @@
     "cuda": true,
     "gpus": [0],
     "input": "image",
+    "recognition": {
+        "name": "CRNN"
+    },
     "data_loader": {
         "data_dir": "datasets",
+        "images_dir": "train_images",
+        "gts_dir" : "train_gts",
         "input_size": 512,
         "batch_size": 8,
         "shuffle": true,
-        "workers": 8
+        "workers": 8,
+        "rand_aug":false
     },
     "validation": {
         "skip_lt_epoch": 0,

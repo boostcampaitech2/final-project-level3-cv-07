@@ -136,7 +136,9 @@ class Recognizer(BaseModel):
 
     def __init__(self, nclass, config):
         super().__init__(config)
-        if "recognition" not in config:
+        recog = config['recognition']
+
+        if recog['name'].lower() == 'CRNN'.lower():
             self.crnn = CRNN(32, 1, nclass, 256)
             # self.crnn.apply(weights_init)
             pre_trainmodel = torch.load('./modules/models/core/pretrain/crnn.pth')
@@ -149,7 +151,6 @@ class Recognizer(BaseModel):
                     
             self.crnn.load_state_dict(model_dict)
         else:
-            recog = config['recognition']
             recog["args"]["nclass"] = nclass
             self.crnn = getattr(__import__(f"modules.models.core.{recog['name'].lower()}", fromlist=[recog['name']]), recog['name'])(**recog["args"])
 

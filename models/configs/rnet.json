@@ -11,11 +11,14 @@
     },
     "input": "image",
     "data_loader": {
-        "data_dir": "datasets/v1",
+        "data_dir": "datasets",
+        "images_dir": "train_images",
+        "gts_dir" : "train_gts",
         "input_size": 512,
         "batch_size": 4,
         "shuffle": true,
-        "workers": 5
+        "workers": 5,
+        "rand_aug":false
     },
     "validation": {
         "skip_lt_epoch": 0,
